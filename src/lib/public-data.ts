@@ -199,15 +199,20 @@ function getDemoClothing(): PublicClothingItem[] {
   }));
 }
 
-export async function getPublicClothing(): Promise<PublicClothingItem[]> {
-  if (isFrontendOnly) return getDemoClothing();
-  await connection();
-  return withDatabaseFallback("roupas", async () => {
-    const records = await prisma.clothingItem.findMany({
-      where: { active: true, deletedAt: null },
-      orderBy: [{ featured: "desc" }, { sortOrder: "asc" }, { name: "asc" }],
-    });
-    return records.map((item) => ({
+function mapClothingRecord(item: {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  category: PublicClothingItem["category"];
+  imagePath: string | null;
+  sizes: string | null;
+  color: string | null;
+  dailyPrice: { toString(): string } | number | null;
+  quantity: number;
+  featured: boolean;
+}): PublicClothingItem {
+  return {
     id: item.id,
     name: item.name,
     slug: item.slug,
@@ -220,8 +225,29 @@ export async function getPublicClothing(): Promise<PublicClothingItem[]> {
     dailyPrice: item.dailyPrice == null ? null : Number(item.dailyPrice),
     quantity: item.quantity,
     featured: item.featured,
-    }));
+  };
+}
+
+export async function getPublicClothing(): Promise<PublicClothingItem[]> {
+  if (isFrontendOnly) return getDemoClothing();
+  await connection();
+  return withDatabaseFallback("roupas", async () => {
+    const records = await prisma.clothingItem.findMany({
+      where: { active: true, deletedAt: null },
+      orderBy: [{ featured: "desc" }, { sortOrder: "asc" }, { name: "asc" }],
+    });
+    return records.map(mapClothingRecord);
   }, getDemoClothing);
+}
+
+export async function getPublicClothingBySlug(slug: string): Promise<PublicClothingItem | null> {
+  const demoItem = () => getDemoClothing().find((item) => item.slug === slug) ?? null;
+  if (isFrontendOnly) return demoItem();
+  await connection();
+  return withDatabaseFallback(`roupa ${slug}`, async () => {
+    const item = await prisma.clothingItem.findFirst({ where: { slug, active: true, deletedAt: null } });
+    return item ? mapClothingRecord(item) : null;
+  }, demoItem);
 }
 
 export async function getPublicHomeContent() {

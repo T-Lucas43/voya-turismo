@@ -83,7 +83,7 @@ async function main() {
     ] });
   }
 
-  await prisma.companySettings.update({ where: { singletonKey: "default" }, data: { phonePrimary: "(94) 99101-7107" } });
+  await prisma.companySettings.update({ where: { singletonKey: "default" }, data: { phonePrimary: "(94) 99101-7107", whatsappNumber: "5594991017107" } });
   await prisma.adminUser.updateMany({ where: { name: { contains: "D'Hages" } }, data: { name: "Administrador Voya" } });
   await prisma.adminUser.updateMany({ where: { name: { contains: "D’Hages" } }, data: { name: "Administrador Voya" } });
   const published = await prisma.package.count({ where: { publicationStatus: "PUBLISHED", deletedAt: null } });

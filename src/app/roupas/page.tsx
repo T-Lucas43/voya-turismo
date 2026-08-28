@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { MessageCircle, Shirt } from "lucide-react";
+import Link from "next/link";
+import { ArrowUpRight, MessageCircle, Shirt } from "lucide-react";
 import { PublicShell } from "@/components/public-shell";
 import { whatsappUrl } from "@/data/demo";
 import { formatCurrency } from "@/data/demo";
@@ -24,7 +25,7 @@ export default async function ClothingPage() {
       </div>
       {items.length ? <div className="clothing-grid">{items.map((item) => <article className="clothing-card" key={item.id}>
         <div className="clothing-image">{item.imagePath ? <img src={item.imagePath} alt={item.name} /> : <Shirt aria-hidden="true" />}{item.featured && <span>Destaque</span>}</div>
-        <div><small>{item.categoryLabel}</small><h2>{item.name}</h2>{item.description && <p>{item.description}</p>}<dl>{item.sizes && <><dt>Tamanhos</dt><dd>{item.sizes}</dd></>}{item.color && <><dt>Cor</dt><dd>{item.color}</dd></>}<dt>Disponíveis</dt><dd>{item.quantity}</dd></dl><strong>{item.dailyPrice == null ? "Valor sob consulta" : `${formatCurrency(item.dailyPrice)} / diária`}</strong><a className="clothing-interest-link" href={whatsappUrl(`Olá! Quero consultar a disponibilidade de ${item.name}.`, company.whatsapp)} target="_blank" rel="noreferrer"><MessageCircle size={17} /> Consultar no WhatsApp</a></div>
+        <div className="clothing-card-body"><small>{item.categoryLabel}</small><h2>{item.name}</h2>{item.description && <p>{item.description}</p>}<dl>{item.sizes && <><dt>Tamanhos</dt><dd>{item.sizes}</dd></>}{item.color && <><dt>Cor</dt><dd>{item.color}</dd></>}<dt>Disponíveis</dt><dd>{item.quantity}</dd></dl><strong className="clothing-card-price">{item.dailyPrice == null ? "Valor sob consulta" : `${formatCurrency(item.dailyPrice)} / diária`}</strong><div className="clothing-card-actions"><Link className="button button-primary" href={`/roupas/${item.slug}`}>Ver detalhes <ArrowUpRight size={17} /></Link><a className="icon-button" href={whatsappUrl(`Olá! Tenho interesse em alugar ${item.name}. Gostaria de confirmar os tamanhos disponíveis, o número de diárias e as condições da reserva.`, company.whatsapp)} target="_blank" rel="noreferrer" aria-label={`Consultar ${item.name} no WhatsApp`}><MessageCircle size={19} /></a></div></div>
       </article>)}</div> : <div className="public-empty clothing-empty"><Shirt /><strong>Catálogo em preparação</strong><p>As peças serão cadastradas pela equipe Voya no painel administrativo. Fale conosco para consultar opções disponíveis.</p></div>}
     </section>
     <section className="section shell cta-section"><div><span className="eyebrow">Precisa de ajuda?</span><h2>Monte sua mala de frio com a Voya.</h2><p>Conte o destino e as datas da viagem para receber orientação personalizada.</p></div><a className="button button-gold" href={whatsappUrl("Olá! Quero saber mais sobre o aluguel de roupas de frio.", company.whatsapp)} target="_blank" rel="noreferrer"><MessageCircle /> Consultar roupas</a></section>

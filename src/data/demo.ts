@@ -34,7 +34,7 @@ export const company = {
   name: "Voya Turismo",
   city: "Parauapebas – PA",
   phones: ["(94) 99101-7107"],
-  whatsapp: "message/LVQYCRLRXG7LL1",
+  whatsapp: "5594991017107",
   instagram: "@voya.turismo",
   address: "Esplanada, Parauapebas - PA",
   hours: "Atendimento personalizado sob consulta",

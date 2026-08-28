@@ -56,7 +56,7 @@ export default async function PackageDetailPage({ params }: PageProps<"/pacotes/
     }} />
     <section className="detail-top shell">
       <Link href="/pacotes" className="back-link"><ArrowLeft size={18} /> Voltar aos pacotes</Link>
-      <div className="detail-gallery"><div className="detail-main-image"><img src={item.image} alt={`Paisagem de ${item.destination}`} /><span>{item.category}</span></div><div className="detail-side-images">{sideMedia.length ? sideMedia.map((media) => media.type === "VIDEO" ? <video key={media.id} src={media.path} poster={media.posterPath ?? undefined} controls preload="metadata" aria-label={media.altText ?? `Vídeo de ${item.destination}`} /> : <img key={media.id} src={media.thumbnailPath ?? media.path} alt={media.altText ?? `Experiência em ${item.destination}`} />) : <><img src={item.image} alt="Experiência de viagem" /><img src={item.image} alt="Paisagem do roteiro" /></>}</div></div>
+      <div className={`detail-gallery${sideMedia.length ? "" : " detail-gallery-single"}`}><div className="detail-main-image"><img src={item.image} alt={`Paisagem de ${item.destination}`} /><span>{item.category}</span></div>{sideMedia.length > 0 && <div className="detail-side-images">{sideMedia.map((media) => media.type === "VIDEO" ? <video key={media.id} src={media.path} poster={media.posterPath ?? undefined} controls preload="metadata" aria-label={media.altText ?? `Vídeo de ${item.destination}`} /> : <img key={media.id} src={media.thumbnailPath ?? media.path} alt={media.altText ?? `Experiência em ${item.destination}`} />)}</div>}</div>
     </section>
     <section className="detail-layout shell">
       <div className="detail-content">

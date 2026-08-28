@@ -53,7 +53,7 @@ async function main() {
     state: "Pará",
       phonePrimary: "(94) 99101-7107",
     phoneSecondary: null,
-    whatsappNumber: "message/LVQYCRLRXG7LL1",
+    whatsappNumber: "5594991017107",
     instagramHandle: "@voya.turismo",
     address: "Esplanada, Parauapebas - PA",
     businessHours: "Atendimento personalizado sob consulta",

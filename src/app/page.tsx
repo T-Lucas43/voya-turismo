@@ -16,6 +16,7 @@ import {
   Users,
 } from "lucide-react";
 import { PackageCard } from "@/components/package-card";
+import { HomePackageCarousel } from "@/components/home-package-carousel";
 import { HeroBackground } from "@/components/motion/hero-background";
 import { Reveal } from "@/components/motion/reveal";
 import { PublicShell } from "@/components/public-shell";
@@ -42,6 +43,7 @@ const benefits = [
 
 export default async function Home() {
   const [packages, content, company] = await Promise.all([getPublicPackages(), getPublicHomeContent(), getPublicCompany()]);
+  const featuredPackages = packages.filter((item) => item.featured).concat(packages.filter((item) => !item.featured)).slice(0, 4);
   return (
     <PublicShell>
       <StructuredData data={{
@@ -86,7 +88,7 @@ export default async function Home() {
 
       <section className="section shell featured-section">
         <SectionHeading eyebrow="Escolhidos para você" title="Pacotes em destaque" text="Experiências selecionadas para viver dias inesquecíveis." href="/pacotes" linkLabel="Ver todos os pacotes" />
-        {packages.length ? <Reveal className="package-grid home-package-grid">{packages.filter((item) => item.featured).concat(packages.filter((item) => !item.featured)).slice(0, 4).map((item) => <PackageCard key={item.slug} item={item} />)}</Reveal> : <div className="public-empty"><strong>Novas viagens em preparação</strong><p>Fale com nossa equipe para conhecer os próximos roteiros.</p></div>}
+        {featuredPackages.length ? <Reveal><HomePackageCarousel itemCount={featuredPackages.length}>{featuredPackages.map((item) => <PackageCard key={item.slug} item={item} />)}</HomePackageCarousel></Reveal> : <div className="public-empty"><strong>Novas viagens em preparação</strong><p>Fale com nossa equipe para conhecer os próximos roteiros.</p></div>}
       </section>
 
       <section className="shell promo-grid" aria-label="Serviços Voya Turismo">

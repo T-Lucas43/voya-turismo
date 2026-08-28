@@ -71,7 +71,12 @@ function getDemoHomeContent() {
     categories: [{ name: "Nacionais", slug: "nacional", count: 5 }, { name: "Internacionais", slug: "internacional", count: 1 }],
     testimonial: { name: "Mariana Souza", destination: "Carolina — MA", quote: "A equipe cuidou de tudo e fez a gente se sentir em casa. Foi a melhor escolha para conhecer a Chapada!", rating: 5 },
     gallery: [],
-    faqs: [{ id: "reserva", question: "Como faço para reservar?", answer: "Fale com nossa equipe pelo WhatsApp. Confirmaremos disponibilidade e condições de pagamento." }],
+    faqs: [
+      { id: "reserva", question: "Como faço para reservar?", answer: "Fale com nossa equipe pelo WhatsApp. Confirmaremos disponibilidade, datas e condições de pagamento antes de concluir a reserva." },
+      { id: "parcelamento", question: "Posso parcelar minha viagem?", answer: "Sim. As opções de parcelamento e o valor total são apresentados em cada pacote e confirmados pela equipe no atendimento." },
+      { id: "itens-inclusos", question: "O que está incluso nos pacotes?", answer: "Cada pacote possui sua própria relação de hospedagem, transporte, passeios e serviços inclusos. Consulte os detalhes do roteiro ou fale com a equipe." },
+      { id: "roupas-de-frio", question: "Como funciona o aluguel de roupas de frio?", answer: "Escolha a peça, informe o número de diárias e envie a solicitação pelo WhatsApp. A equipe confirma tamanho, disponibilidade, retirada e devolução." },
+    ],
   };
 }
 

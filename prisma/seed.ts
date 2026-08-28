@@ -161,9 +161,10 @@ async function main() {
   }
 
   const faqSeed = [
-    ["Como faço para reservar?", "Fale com nossa equipe pelo WhatsApp. Confirmaremos disponibilidade e condições de pagamento."],
-    ["Posso parcelar?", "Sim. Cada pacote informa o número de parcelas e o valor total parcelado."],
-    ["O que preciso levar?", "Enviamos uma lista antes da viagem, além dos documentos necessários informados no pacote."],
+    ["Como faço para reservar?", "Fale com nossa equipe pelo WhatsApp. Confirmaremos disponibilidade, datas e condições de pagamento antes de concluir a reserva."],
+    ["Posso parcelar minha viagem?", "Sim. As opções de parcelamento e o valor total são apresentados em cada pacote e confirmados pela equipe no atendimento."],
+    ["O que está incluso nos pacotes?", "Cada pacote possui sua própria relação de hospedagem, transporte, passeios e serviços inclusos. Consulte os detalhes do roteiro ou fale com a equipe."],
+    ["Como funciona o aluguel de roupas de frio?", "Escolha a peça, informe o número de diárias e envie a solicitação pelo WhatsApp. A equipe confirma tamanho, disponibilidade, retirada e devolução."],
   ] as const;
 
   for (let index = 0; index < faqSeed.length; index += 1) {

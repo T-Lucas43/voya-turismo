@@ -6,6 +6,8 @@ import { hash } from "argon2";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { databaseAdapterUrl } from "../src/lib/database-url";
+import { voyaPackageCatalog } from "../src/data/voya-package-catalog";
+import { voyaClothingCatalog } from "../src/data/voya-clothing-catalog";
 
 const databaseUrl = process.env.DATABASE_URL;
 if (!databaseUrl) throw new Error("DATABASE_URL não configurada.");
@@ -35,8 +37,8 @@ async function main() {
 
   const admin = await prisma.adminUser.upsert({
     where: { email: adminEmail.toLowerCase() },
-    update: { name: process.env.ADMIN_INITIAL_NAME ?? "Administrador D’Hages", passwordHash, active: true, failedLoginCount: 0, lockedUntil: null },
-    create: { name: process.env.ADMIN_INITIAL_NAME ?? "Administrador D’Hages", email: adminEmail.toLowerCase(), passwordHash, role: "OWNER" },
+    update: { name: process.env.ADMIN_INITIAL_NAME ?? "Administrador Voya", passwordHash, active: true, failedLoginCount: 0, lockedUntil: null },
+    create: { name: process.env.ADMIN_INITIAL_NAME ?? "Administrador Voya", email: adminEmail.toLowerCase(), passwordHash, role: "OWNER" },
   });
 
   if (!configuredPassword) {
@@ -45,28 +47,31 @@ async function main() {
     await writeFile(resolve(credentialDir, "dev-admin-credentials.txt"), `E-mail: ${adminEmail}\nSenha: ${initialPassword}\n`, { encoding: "utf8", mode: 0o600 });
   }
 
+  const companySettingsData = {
+    companyName: "Voya Turismo",
+    city: "Parauapebas",
+    state: "Pará",
+      phonePrimary: "(94) 99101-7107",
+    phoneSecondary: null,
+    whatsappNumber: "message/LVQYCRLRXG7LL1",
+    instagramHandle: "@voya.turismo",
+    address: "Esplanada, Parauapebas - PA",
+    businessHours: "Atendimento personalizado sob consulta",
+    mapEmbedUrl: "https://maps.app.goo.gl/d8bqHyrkwRFXEaH68?g_st=ipc",
+    aboutTitle: "Experiências que ficam para sempre",
+    aboutText: "A Voya Turismo cria viagens nacionais e internacionais com ótimo custo-benefício, planejamento próximo e aluguel de roupas de frio.",
+    mission: "Transformar planos em viagens completas, seguras e memoráveis.",
+    vision: "Ser referência em atendimento personalizado e experiências de viagem em Parauapebas.",
+    valuesText: "Transparência, cuidado, segurança, proximidade e paixão por viajar.",
+    logoDarkPath: "/brand/voya-mark-640.png",
+    logoLightPath: "/brand/voya-mark-640.png",
+    defaultShareImagePath: "/media/hero-balneario-voya-4k.webp",
+  };
+
   await prisma.companySettings.upsert({
     where: { singletonKey: "default" },
-    update: {},
-    create: {
-      singletonKey: "default",
-      companyName: "D’Hages Turismo",
-      city: "Belém",
-      state: "Pará",
-      phonePrimary: "(91) 99215-2727",
-      phoneSecondary: "(91) 98114-9800",
-      whatsappNumber: "5591992152727",
-      instagramHandle: "@dhages_turismo",
-      address: "Av. Senador Lemos, 3153, lojas 30/31, 1º piso, IT Center – Sacramento, Belém/PA",
-      businessHours: "Segunda a sexta, das 9h às 18h · Sábado, das 9h às 13h",
-      aboutTitle: "Turismo feito com cuidado e afeto",
-      aboutText: "Somos de Belém e criamos roteiros acolhedores, seguros e bem acompanhados.",
-      mission: "Aproximar pessoas de experiências marcantes por meio de viagens bem cuidadas.",
-      vision: "Ser referência em turismo acolhedor e responsável na região Norte.",
-      valuesText: "Transparência, segurança, respeito, atenção e paixão por servir.",
-      logoDarkPath: "/brand/logo.webp",
-      logoLightPath: "/brand/logo.webp",
-    },
+    update: companySettingsData,
+    create: { singletonKey: "default", ...companySettingsData },
   });
 
   const categories = new Map<string, string>();
@@ -86,70 +91,73 @@ async function main() {
     const destination = await prisma.destination.upsert({
       where: { slug: item.slug },
       update: { ...item, active: true, sortOrder: index },
-      create: { ...item, active: true, sortOrder: index, description: `Conheça ${item.name} com a D’Hages Turismo.` },
+      create: { ...item, active: true, sortOrder: index, description: `Conheça ${item.name} com a Voya Turismo.` },
     });
     destinations.set(item.slug, destination.id);
   }
 
-  const packageSeeds = [
-    {
-      name: "Ajuruteua — PA", slug: "ajuruteua-pa", summary: "Areia clara, mar aberto e uma experiência leve no litoral paraense.", description: "Um roteiro completo para aproveitar Ajuruteua com transporte, hospedagem e acompanhamento da equipe D’Hages.", category: "praias-ilhas", destination: "ajuruteua-pa", city: "Bragança", state: "Pará", stateCode: "PA", departureAt: new Date("2026-09-23T09:00:00-03:00"), returnAt: new Date("2026-09-24T19:00:00-03:00"), durationDays: 2, cashPrice: "489.00", installmentCount: 6, installmentValue: "86.50", installmentTotal: "519.00", totalSpots: 40, remainingSpots: 4, availabilityStatus: "FEW_SPOTS" as const, featured: true, featuredOrder: 1, waitingListEnabled: true,
-    },
-    {
-      name: "Bragança, Ajuruteua & Ville Acqua Park", slug: "braganca-ajuruteua-ville-acqua-park", summary: "Cultura, praia e diversão em um roteiro que combina três experiências.", description: "Conheça Bragança, aproveite Ajuruteua e reserve um dia para o Ville Acqua Park com suporte da nossa equipe.", category: "praias-ilhas", destination: "braganca-pa", city: "Bragança", state: "Pará", stateCode: "PA", departureAt: new Date("2026-10-10T06:00:00-03:00"), returnAt: new Date("2026-10-12T20:00:00-03:00"), durationDays: 3, cashPrice: "799.00", installmentCount: 8, installmentValue: "108.00", installmentTotal: "864.00", totalSpots: 44, remainingSpots: 18, availabilityStatus: "AVAILABLE" as const, featured: true, featuredOrder: 2, waitingListEnabled: false,
-    },
-    {
-      name: "Mosqueiro — Feriado", slug: "mosqueiro-feriado", summary: "Um dia inteiro para curtir a ilha com embarque organizado em Belém.", description: "Bate e volta para a Ilha do Mosqueiro com transporte executivo e acompanhamento da equipe.", category: "bate-e-volta", destination: "mosqueiro-pa", city: "Belém", state: "Pará", stateCode: "PA", departureAt: new Date("2026-11-15T06:00:00-03:00"), returnAt: new Date("2026-11-15T21:00:00-03:00"), durationDays: 1, cashPrice: "189.00", installmentCount: 3, installmentValue: "66.00", installmentTotal: "198.00", totalSpots: 44, remainingSpots: 0, availabilityStatus: "SOLD_OUT" as const, featured: false, featuredOrder: null, waitingListEnabled: true,
-    },
-    {
-      name: "Carolina — Chapada das Mesas", slug: "carolina-chapada-das-mesas", summary: "Cachoeiras, trilhas e paisagens grandiosas em um roteiro acompanhado.", description: "Cinco dias para viver a Chapada das Mesas com hospedagem, transporte e experiências selecionadas.", category: "aventura", destination: "carolina-ma", city: "Carolina", state: "Maranhão", stateCode: "MA", departureAt: new Date("2026-09-10T05:00:00-03:00"), returnAt: new Date("2026-09-14T22:00:00-03:00"), durationDays: 5, cashPrice: "1490.00", installmentCount: 10, installmentValue: "165.00", installmentTotal: "1650.00", totalSpots: 32, remainingSpots: 12, availabilityStatus: "AVAILABLE" as const, featured: true, featuredOrder: 3, waitingListEnabled: false,
-    },
-    {
-      name: "Salinas — Verão paraense", slug: "salinas-verao-paraense", summary: "Praia, gastronomia e dias leves na costa atlântica do Pará.", description: "Um fim de semana em Salinópolis com roteiro flexível, hospedagem e suporte próximo.", category: "praias-ilhas", destination: "salinopolis-pa", city: "Salinópolis", state: "Pará", stateCode: "PA", departureAt: new Date("2026-12-05T06:00:00-03:00"), returnAt: new Date("2026-12-07T20:00:00-03:00"), durationDays: 3, cashPrice: "899.00", installmentCount: 8, installmentValue: "121.00", installmentTotal: "968.00", totalSpots: 40, remainingSpots: 25, availabilityStatus: "AVAILABLE" as const, featured: false, featuredOrder: null, waitingListEnabled: false,
-    },
-  ];
+  for (const [index, item] of voyaPackageCatalog.entries()) {
+    const category = await prisma.packageCategory.upsert({
+      where: { slug: item.categorySlug },
+      update: { name: item.categoryName, active: true, deletedAt: null, sortOrder: item.categorySlug === "nacional" ? 0 : 1 },
+      create: { name: item.categoryName, slug: item.categorySlug, active: true, sortOrder: item.categorySlug === "nacional" ? 0 : 1 },
+    });
+    categories.set(item.categorySlug, category.id);
+    const destination = await prisma.destination.upsert({
+      where: { slug: item.destinationSlug },
+      update: { name: item.destination, city: item.city, state: item.state, stateCode: item.stateCode, coverPath: item.image, active: true, deletedAt: null, sortOrder: index },
+      create: { name: item.destination, slug: item.destinationSlug, city: item.city, state: item.state, stateCode: item.stateCode, coverPath: item.image, active: true, sortOrder: index },
+    });
+    destinations.set(item.destinationSlug, destination.id);
+  }
 
-  const galleryImages = [
-    "/media/destinations/ajuruteua.webp",
-    "/media/destinations/alter-do-chao.webp",
-    "/media/destinations/chapada-das-mesas.webp",
-  ];
+  const packageSeeds = voyaPackageCatalog.map((item, index) => ({
+    name: item.name, slug: item.slug, summary: item.summary, description: item.description, category: item.categorySlug, destination: item.destinationSlug,
+    city: item.city, state: item.state, stateCode: item.stateCode, departureAt: new Date(item.departureIso), returnAt: new Date(item.returnIso), durationDays: item.durationDays,
+    cashPrice: (item.installmentValue * 12).toFixed(2), installmentCount: 12, installmentValue: item.installmentValue.toFixed(2), installmentTotal: (item.installmentValue * 12).toFixed(2),
+    totalSpots: null, remainingSpots: null, availabilityStatus: "AVAILABLE" as const, featured: index < 4, featuredOrder: index < 4 ? index + 1 : null, waitingListEnabled: true,
+    image: item.image, included: item.included,
+  }));
 
-  for (const [index, item] of packageSeeds.entries()) {
+  for (const item of packageSeeds) {
     const categoryId = categories.get(item.category);
     const destinationId = destinations.get(item.destination);
     if (!categoryId || !destinationId) throw new Error(`Seed incompleto para ${item.slug}.`);
 
-    const travelPackage = await prisma.package.upsert({
+    await prisma.package.upsert({
       where: { slug: item.slug },
       update: {
         name: item.name, summary: item.summary, description: item.description, categoryId, destinationId, city: item.city, state: item.state, stateCode: item.stateCode,
         departureAt: item.departureAt, returnAt: item.returnAt, durationDays: item.durationDays, cashPrice: item.cashPrice, installmentCount: item.installmentCount,
         installmentValue: item.installmentValue, installmentTotal: item.installmentTotal, totalSpots: item.totalSpots, remainingSpots: item.remainingSpots,
         availabilityStatus: item.availabilityStatus, featured: item.featured, featuredOrder: item.featuredOrder, waitingListEnabled: item.waitingListEnabled,
-        publicationStatus: "PUBLISHED", publishedAt: new Date("2026-08-01T09:00:00-03:00"), updatedById: admin.id,
+        publicationStatus: "PUBLISHED", publishedAt: new Date("2026-08-01T09:00:00-03:00"), publicationEndsAt: null, deletedAt: null, updatedById: admin.id,
       },
       create: {
         name: item.name, slug: item.slug, summary: item.summary, description: item.description, categoryId, destinationId, city: item.city, state: item.state, stateCode: item.stateCode,
-        departureAt: item.departureAt, returnAt: item.returnAt, boardingTime: "06:00", boardingLocation: "Belém — ponto informado antes da viagem", durationDays: item.durationDays,
+        departureAt: item.departureAt, returnAt: item.returnAt, boardingTime: "06:00", boardingLocation: "Marabá — ponto informado pela equipe", durationDays: item.durationDays,
         cashPrice: item.cashPrice, installmentCount: item.installmentCount, installmentValue: item.installmentValue, installmentTotal: item.installmentTotal,
         totalSpots: item.totalSpots, remainingSpots: item.remainingSpots, showSpots: true, accommodation: "Hospedagem conforme categoria do pacote.", transport: "Transporte executivo climatizado.",
-        meals: "Café da manhã quando indicado no roteiro.", guide: "Equipe D’Hages Turismo", childPolicy: "Consulte condições por faixa etária.", requiredDocuments: "Documento oficial com foto.",
+        meals: "Café da manhã quando indicado no roteiro.", guide: "Equipe Voya Turismo", childPolicy: "Consulte condições por faixa etária.", requiredDocuments: "Documento oficial com foto.",
         paymentMethods: "Pix, cartão e transferência, conforme condições do pacote.", publicationStatus: "PUBLISHED", availabilityStatus: item.availabilityStatus,
         featured: item.featured, featuredOrder: item.featuredOrder, waitingListEnabled: item.waitingListEnabled, publishedAt: new Date("2026-08-01T09:00:00-03:00"),
         seoTitle: item.name, seoDescription: item.summary, createdById: admin.id, updatedById: admin.id,
         media: {
-          create: galleryImages.map((path, mediaIndex) => ({ type: "IMAGE", path, thumbnailPath: path, altText: `${item.name} — imagem ${mediaIndex + 1}`, mimeType: "image/jpeg", sizeBytes: 0, isCover: mediaIndex === 0, sortOrder: mediaIndex })),
+          create: [{ type: "IMAGE", path: item.image, thumbnailPath: item.image, altText: `Fotografia do destino ${item.name}`, mimeType: "image/webp", sizeBytes: 0, width: 1600, height: 900, isCover: true, sortOrder: 0 }],
         },
-        includedItems: { create: [{ text: "Transporte ida e volta", sortOrder: 0 }, { text: "Acompanhamento da equipe", sortOrder: 1 }, { text: "Hospedagem conforme o roteiro", sortOrder: 2 }] },
+        includedItems: { create: item.included.map((text, sortOrder) => ({ text, sortOrder })) },
         excludedItems: { create: [{ text: "Despesas pessoais", sortOrder: 0 }, { text: "Refeições não mencionadas", sortOrder: 1 }] },
-        itinerary: { create: [{ dayNumber: 1, title: "Partida e boas-vindas", details: "Embarque, recepção da equipe e início das atividades.", sortOrder: 0 }, { dayNumber: item.durationDays, title: "Últimas experiências e retorno", details: "Programação final e retorno para Belém.", sortOrder: 1 }] },
+        itinerary: { create: [{ dayNumber: 1, title: "Partida e boas-vindas", details: "Embarque, recepção da equipe e início das atividades.", sortOrder: 0 }, { dayNumber: item.durationDays, title: "Últimas experiências e retorno", details: "Programação final e retorno.", sortOrder: 1 }] },
       },
     });
-    if (index === 0) {
-      const previewVideo = await prisma.packageMedia.findFirst({ where: { packageId: travelPackage.id, type: "VIDEO", path: "/media/hero-amazonia.mp4" } });
-      if (!previewVideo) await prisma.packageMedia.create({ data: { packageId: travelPackage.id, type: "VIDEO", path: "/media/hero-amazonia.mp4", thumbnailPath: "/media/hero-amazonia-poster.webp", posterPath: "/media/hero-amazonia-poster.webp", altText: "Vista aérea da Amazônia em Full HD", mimeType: "video/mp4", sizeBytes: 8_647_133, width: 1920, height: 1080, isPreview: true, sortOrder: 10 } });
-    }
+  }
+
+  for (const item of voyaClothingCatalog) {
+    await prisma.clothingItem.upsert({
+      where: { slug: item.slug },
+      update: { ...item, active: true, deletedAt: null },
+      create: { ...item, active: true },
+    });
   }
 
   const faqSeed = [

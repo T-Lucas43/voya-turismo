@@ -14,11 +14,14 @@ export type CollectionField = {
   placeholder?: string;
   defaultValue?: string | number | boolean;
   wide?: boolean;
+  min?: number;
+  step?: number;
+  checkboxLabel?: string;
 };
 export type CollectionColumn = {
   key: string;
   label: string;
-  format?: "active" | "published" | "rating" | "mediaType";
+  format?: "active" | "published" | "rating" | "mediaType" | "currency" | "clothingCategory";
 };
 
 function formatColumnValue(record: CollectionRecord, column: CollectionColumn) {
@@ -27,6 +30,8 @@ function formatColumnValue(record: CollectionRecord, column: CollectionColumn) {
   if (column.format === "published") return value ? "Publicado" : "Oculto";
   if (column.format === "rating") return `${value ?? 0}/5`;
   if (column.format === "mediaType") return value === "VIDEO" ? "Vídeo" : "Imagem";
+  if (column.format === "currency") return value == null ? "Sob consulta" : new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(value));
+  if (column.format === "clothingCategory") return ({ FEMININO: "Feminino", MASCULINO: "Masculino", INFANTIL: "Infantil", ACESSORIO: "Acessórios" } as Record<string, string>)[String(value)] ?? String(value ?? "—");
   return String(value ?? "—");
 }
 
@@ -103,7 +108,7 @@ export function CollectionManager({ entity, title, description, singular, record
         <div className="collection-search"><Search /><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder={`Buscar em ${title.toLowerCase()}`} /></div>
         {filtered.length ? <div className="admin-table-wrap"><table><thead><tr>{columns.map((column) => <th key={column.key}>{column.label}</th>)}<th>Ações</th></tr></thead><tbody>{filtered.map((record) => <tr key={record.id}>{columns.map((column) => <td key={column.key}>{formatColumnValue(record, column)}</td>)}<td><div className="row-actions"><button type="button" onClick={() => { setEditing(record); setCreating(false); }} aria-label="Editar"><Pencil /></button><button className="danger" type="button" disabled={busy} onClick={() => remove(record)} aria-label="Remover"><Trash2 /></button></div></td></tr>)}</tbody></table></div> : <div className="admin-empty"><Search /><strong>Nenhum registro encontrado</strong><p>Crie o primeiro cadastro ou altere a busca.</p></div>}
       </section>
-      {formOpen && <aside className="admin-panel collection-form-panel"><div className="collection-form-heading"><div><span>{editing ? "Editar" : "Novo cadastro"}</span><h2>{editing ? `${singular} selecionado` : `Adicionar ${singular.toLowerCase()}`}</h2></div><button type="button" onClick={() => { setEditing(null); setCreating(false); }} aria-label="Fechar formulário"><X /></button></div><form className="collection-form" onSubmit={submit}>{fields.map((field) => <label className={field.wide ? "wide" : ""} key={field.key}><span>{field.label}</span>{field.type === "textarea" ? <textarea name={field.key} rows={4} defaultValue={String(values[field.key] ?? "")} required={field.required} placeholder={field.placeholder} /> : field.type === "select" ? <select name={field.key} defaultValue={String(values[field.key] ?? "")} required={field.required}><option value="">Selecionar</option>{field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : field.type === "checkbox" ? <span className="collection-checkbox"><input name={field.key} type="checkbox" defaultChecked={Boolean(values[field.key])} /><small>Ativo e visível</small></span> : <input name={field.key} type={field.type === "number" ? "number" : "text"} defaultValue={String(values[field.key] ?? "")} required={field.required} placeholder={field.placeholder} onBlur={field.key === "name" ? (event) => { const slugInput = event.currentTarget.form?.elements.namedItem("slug") as HTMLInputElement | null; if (slugInput && !slugInput.value) slugInput.value = slugify(event.currentTarget.value); } : undefined} />}</label>)}<button className="button button-primary" type="submit" disabled={busy}>{busy ? "Salvando..." : "Salvar cadastro"}</button></form></aside>}
+      {formOpen && <aside className="admin-panel collection-form-panel"><div className="collection-form-heading"><div><span>{editing ? "Editar" : "Novo cadastro"}</span><h2>{editing ? `${singular} selecionado` : `Adicionar ${singular.toLowerCase()}`}</h2></div><button type="button" onClick={() => { setEditing(null); setCreating(false); }} aria-label="Fechar formulário"><X /></button></div><form className="collection-form" onSubmit={submit}>{fields.map((field) => <label className={field.wide ? "wide" : ""} key={field.key}><span>{field.label}</span>{field.type === "textarea" ? <textarea name={field.key} rows={4} defaultValue={String(values[field.key] ?? "")} required={field.required} placeholder={field.placeholder} /> : field.type === "select" ? <select name={field.key} defaultValue={String(values[field.key] ?? "")} required={field.required}><option value="">Selecionar</option>{field.options?.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : field.type === "checkbox" ? <span className="collection-checkbox"><input name={field.key} type="checkbox" defaultChecked={Boolean(values[field.key])} /><small>{field.checkboxLabel ?? "Ativo e visível"}</small></span> : <input name={field.key} type={field.type === "number" ? "number" : "text"} min={field.min} step={field.step} defaultValue={String(values[field.key] ?? "")} required={field.required} placeholder={field.placeholder} onBlur={field.key === "name" ? (event) => { const slugInput = event.currentTarget.form?.elements.namedItem("slug") as HTMLInputElement | null; if (slugInput && !slugInput.value) slugInput.value = slugify(event.currentTarget.value); } : undefined} />}</label>)}<button className="button button-primary" type="submit" disabled={busy}>{busy ? "Salvando..." : "Salvar cadastro"}</button></form></aside>}
     </div>
   </div>;
 }

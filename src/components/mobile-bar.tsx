@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { Compass, Home, MapPinned, Phone } from "lucide-react";
+import { Compass, Home, Phone, Shirt } from "lucide-react";
 
 const items = [
   { label: "Início", href: "/", icon: Home },
   { label: "Pacotes", href: "/pacotes", icon: Compass },
-  { label: "Destinos", href: "/destinos", icon: MapPinned },
+  { label: "Roupas", href: "/roupas", icon: Shirt },
   { label: "Contato", href: "/contato", icon: Phone },
 ];
 

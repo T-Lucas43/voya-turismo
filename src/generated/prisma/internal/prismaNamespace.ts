@@ -411,6 +411,7 @@ export const ModelName = {
   Testimonial: 'Testimonial',
   Faq: 'Faq',
   GalleryItem: 'GalleryItem',
+  ClothingItem: 'ClothingItem',
   CompanySettings: 'CompanySettings',
   AuditLog: 'AuditLog'
 } as const
@@ -428,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "adminUser" | "adminSession" | "passwordResetToken" | "packageCategory" | "destination" | "package" | "packageMedia" | "packageIncludedItem" | "packageExcludedItem" | "itineraryItem" | "lead" | "testimonial" | "faq" | "galleryItem" | "companySettings" | "auditLog"
+    modelProps: "adminUser" | "adminSession" | "passwordResetToken" | "packageCategory" | "destination" | "package" | "packageMedia" | "packageIncludedItem" | "packageExcludedItem" | "itineraryItem" | "lead" | "testimonial" | "faq" | "galleryItem" | "clothingItem" | "companySettings" | "auditLog"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1356,6 +1357,72 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ClothingItem: {
+      payload: Prisma.$ClothingItemPayload<ExtArgs>
+      fields: Prisma.ClothingItemFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ClothingItemFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClothingItemPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ClothingItemFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClothingItemPayload>
+        }
+        findFirst: {
+          args: Prisma.ClothingItemFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClothingItemPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ClothingItemFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClothingItemPayload>
+        }
+        findMany: {
+          args: Prisma.ClothingItemFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClothingItemPayload>[]
+        }
+        create: {
+          args: Prisma.ClothingItemCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClothingItemPayload>
+        }
+        createMany: {
+          args: Prisma.ClothingItemCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        delete: {
+          args: Prisma.ClothingItemDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClothingItemPayload>
+        }
+        update: {
+          args: Prisma.ClothingItemUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClothingItemPayload>
+        }
+        deleteMany: {
+          args: Prisma.ClothingItemDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ClothingItemUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        upsert: {
+          args: Prisma.ClothingItemUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ClothingItemPayload>
+        }
+        aggregate: {
+          args: Prisma.ClothingItemAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateClothingItem>
+        }
+        groupBy: {
+          args: Prisma.ClothingItemGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClothingItemGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ClothingItemCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ClothingItemCountAggregateOutputType> | number
+        }
+      }
+    }
     CompanySettings: {
       payload: Prisma.$CompanySettingsPayload<ExtArgs>
       fields: Prisma.CompanySettingsFieldRefs
@@ -1784,6 +1851,28 @@ export const GalleryItemScalarFieldEnum = {
 export type GalleryItemScalarFieldEnum = (typeof GalleryItemScalarFieldEnum)[keyof typeof GalleryItemScalarFieldEnum]
 
 
+export const ClothingItemScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  category: 'category',
+  imagePath: 'imagePath',
+  sizes: 'sizes',
+  color: 'color',
+  dailyPrice: 'dailyPrice',
+  quantity: 'quantity',
+  active: 'active',
+  featured: 'featured',
+  sortOrder: 'sortOrder',
+  deletedAt: 'deletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClothingItemScalarFieldEnum = (typeof ClothingItemScalarFieldEnum)[keyof typeof ClothingItemScalarFieldEnum]
+
+
 export const CompanySettingsScalarFieldEnum = {
   id: 'id',
   singletonKey: 'singletonKey',
@@ -2028,6 +2117,19 @@ export const GalleryItemOrderByRelevanceFieldEnum = {
 export type GalleryItemOrderByRelevanceFieldEnum = (typeof GalleryItemOrderByRelevanceFieldEnum)[keyof typeof GalleryItemOrderByRelevanceFieldEnum]
 
 
+export const ClothingItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  imagePath: 'imagePath',
+  sizes: 'sizes',
+  color: 'color'
+} as const
+
+export type ClothingItemOrderByRelevanceFieldEnum = (typeof ClothingItemOrderByRelevanceFieldEnum)[keyof typeof ClothingItemOrderByRelevanceFieldEnum]
+
+
 export const CompanySettingsOrderByRelevanceFieldEnum = {
   id: 'id',
   singletonKey: 'singletonKey',
@@ -2180,6 +2282,13 @@ export type EnumLeadStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$Prism
  */
 export type EnumFaqScopeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FaqScope'>
     
+
+
+/**
+ * Reference to a field of type 'ClothingCategory'
+ */
+export type EnumClothingCategoryFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ClothingCategory'>
+
 
 
 /**
@@ -2367,6 +2476,7 @@ export type GlobalOmitConfig = {
   testimonial?: Prisma.TestimonialOmit
   faq?: Prisma.FaqOmit
   galleryItem?: Prisma.GalleryItemOmit
+  clothingItem?: Prisma.ClothingItemOmit
   companySettings?: Prisma.CompanySettingsOmit
   auditLog?: Prisma.AuditLogOmit
 }
@@ -2431,4 +2541,3 @@ export type PrismaAction =
  * `PrismaClient` proxy available in interactive transactions.
  */
 export type TransactionClient = Omit<DefaultPrismaClient, runtime.ITXClientDenyList>
-

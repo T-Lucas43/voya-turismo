@@ -6,6 +6,7 @@
 - Mensagem de login genérica para evitar enumeração de usuários.
 - Custo de hash também aplicado quando o e-mail não existe.
 - Bloqueio temporário após cinco senhas inválidas.
+- Limite adicional de dez falhas por origem em uma janela móvel de quinze minutos, com IP armazenado somente como hash.
 - Sessões opacas persistidas apenas como hash no MySQL.
 - Cookie de sessão `HttpOnly`, `SameSite=Strict`, seguro em produção e com validade de sete dias.
 - Token CSRF separado para operações administrativas mutáveis.

@@ -4,7 +4,7 @@ import { authenticateAdminRequest } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { contentSchemas, type ContentEntity } from "@/lib/validation/content";
 
-const validEntities = new Set<ContentEntity>(["categorias", "destinos", "depoimentos", "perguntas", "galeria"]);
+const validEntities = new Set<ContentEntity>(["categorias", "destinos", "depoimentos", "perguntas", "galeria", "roupas"]);
 
 export async function GET(request: NextRequest, context: RouteContext<"/api/admin/content/[entity]">) {
   const session = await authenticateAdminRequest(request);
@@ -16,7 +16,8 @@ export async function GET(request: NextRequest, context: RouteContext<"/api/admi
     : entity === "destinos" ? await prisma.destination.findMany({ where: { deletedAt: null }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }] })
       : entity === "depoimentos" ? await prisma.testimonial.findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }] })
         : entity === "perguntas" ? await prisma.faq.findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }] })
-          : await prisma.galleryItem.findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }] });
+          : entity === "galeria" ? await prisma.galleryItem.findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }] })
+            : await prisma.clothingItem.findMany({ where: { deletedAt: null }, orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }] });
   return NextResponse.json({ records });
 }
 
@@ -36,7 +37,8 @@ export async function POST(request: NextRequest, context: RouteContext<"/api/adm
     else if (entity === "perguntas") {
       const data = contentSchemas.perguntas.parse(parsed.data);
       record = await prisma.faq.create({ data: { ...data, packageId: data.scope === "PACKAGE" ? data.packageId : null } });
-    } else record = await prisma.galleryItem.create({ data: contentSchemas.galeria.parse(parsed.data) });
+    } else if (entity === "galeria") record = await prisma.galleryItem.create({ data: contentSchemas.galeria.parse(parsed.data) });
+    else record = await prisma.clothingItem.create({ data: contentSchemas.roupas.parse(parsed.data) });
     await writeAudit({ adminUserId: session.userId, action: "CONTENT_CREATED", entityType: entity, entityId: record.id, summary: `Novo registro criado em ${entity}.`, afterState: record });
     return NextResponse.json({ record }, { status: 201 });
   } catch {

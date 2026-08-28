@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AtSign, MapPin, MessageCircle, Phone } from "lucide-react";
 import { whatsappUrl } from "@/data/demo";
+import { brand } from "@/lib/brand";
 import type { PublicCompany } from "@/lib/public-data";
 import { Logo } from "./logo";
 
@@ -10,20 +11,21 @@ export function Footer({ company }: { company: PublicCompany }) {
       <div className="shell footer-grid">
         <div className="footer-brand">
           <Logo />
-          <p>Roteiros acolhedores, suporte próximo e a confiança de viajar bem acompanhado.</p>
+          <p>Viagens com ótimo custo-benefício, planejamento completo e aluguel de roupas de frio.</p>
         </div>
         <div>
           <h3>Explore</h3>
           <Link href="/pacotes">Todos os pacotes</Link>
           <Link href="/destinos">Destinos</Link>
+          <Link href="/roupas">Aluguel de roupas</Link>
           <Link href="/sobre">Sobre nós</Link>
           <Link href="/contato">Contato</Link>
         </div>
         <div>
           <h3>Fale conosco</h3>
-          <a href={whatsappUrl("Olá! Gostaria de falar com a D’Hages Turismo.", company.whatsapp)} target="_blank" rel="noreferrer"><MessageCircle size={17} /> {company.phones[0]}</a>
+          <a href={whatsappUrl("Olá! Gostaria de falar com a Voya Turismo.", company.whatsapp)} target="_blank" rel="noreferrer"><MessageCircle size={17} /> WhatsApp Voya</a>
           {company.phones[1] && <a href={`tel:+55${company.phones[1].replace(/\D/g, "")}`}><Phone size={17} /> {company.phones[1]}</a>}
-          <a href="https://instagram.com/dhages_turismo" target="_blank" rel="noreferrer"><AtSign size={17} /> {company.instagram}</a>
+          <a href={brand.instagramUrl} target="_blank" rel="noreferrer"><AtSign size={17} /> {brand.instagramHandle}</a>
         </div>
         <div>
           <h3>Onde estamos</h3>
@@ -31,8 +33,8 @@ export function Footer({ company }: { company: PublicCompany }) {
         </div>
       </div>
       <div className="shell footer-bottom">
-        <span>© 2026 D’Hages Turismo</span>
-        <span>Cadastur · Viage com segurança</span>
+        <span>© 2026 Voya Turismo</span>
+        <span>Viaje com planejamento e segurança</span>
       </div>
     </footer>
   );

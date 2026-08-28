@@ -5,7 +5,9 @@ import { ArrowLeft, BedDouble, CalendarDays, Check, Clock3, CreditCard, FileChec
 import { PackageCard } from "@/components/package-card";
 import { SharePackageButton, WhatsappInterestLink } from "@/components/package-actions";
 import { PublicShell } from "@/components/public-shell";
+import { StructuredData } from "@/components/structured-data";
 import { formatCurrency } from "@/data/demo";
+import { serverEnv } from "@/lib/env";
 import { getPublicPackageBySlug, getPublicPackages } from "@/lib/public-data";
 
 export async function generateMetadata({ params }: PageProps<"/pacotes/[slug]">): Promise<Metadata> {
@@ -32,8 +34,26 @@ export default async function PackageDetailPage({ params }: PageProps<"/pacotes/
   const message = waitingList ? `Olá! Gostaria de entrar na lista de espera do pacote ${item.name}, com saída em ${item.departure}.` : `Olá! Gostaria de receber mais informações sobre o pacote ${item.name}, com saída em ${item.departure}.`;
   const sideMedia = item.media.filter((media) => media.path !== item.image).slice(0, 2);
   const related = packages.filter((entry) => entry.slug !== item.slug && (entry.categorySlug === item.categorySlug || entry.destinationSlug === item.destinationSlug)).slice(0, 3);
+  const availabilityUrl = item.availability === "SOLD_OUT" || item.availability === "CANCELLED" ? "https://schema.org/SoldOut" : "https://schema.org/InStock";
 
   return <PublicShell>
+    <StructuredData data={{
+      "@context": "https://schema.org",
+      "@type": "Product",
+      name: item.name,
+      description: item.seoDescription || item.summary,
+      image: [new URL(item.shareImagePath || item.image, serverEnv.APP_URL).toString()],
+      sku: item.slug,
+      brand: { "@type": "Brand", name: "Voya Turismo" },
+      offers: {
+        "@type": "Offer",
+        url: new URL(`/pacotes/${item.slug}`, serverEnv.APP_URL).toString(),
+        priceCurrency: "BRL",
+        price: item.price,
+        availability: availabilityUrl,
+        validFrom: item.departureIso,
+      },
+    }} />
     <section className="detail-top shell">
       <Link href="/pacotes" className="back-link"><ArrowLeft size={18} /> Voltar aos pacotes</Link>
       <div className="detail-gallery"><div className="detail-main-image"><img src={item.image} alt={`Paisagem de ${item.destination}`} /><span>{item.category}</span></div><div className="detail-side-images">{sideMedia.length ? sideMedia.map((media) => media.type === "VIDEO" ? <video key={media.id} src={media.path} poster={media.posterPath ?? undefined} controls preload="metadata" aria-label={media.altText ?? `Vídeo de ${item.destination}`} /> : <img key={media.id} src={media.thumbnailPath ?? media.path} alt={media.altText ?? `Experiência em ${item.destination}`} />) : <><img src={item.image} alt="Experiência de viagem" /><img src={item.image} alt="Paisagem do roteiro" /></>}</div></div>

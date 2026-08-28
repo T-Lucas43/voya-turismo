@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest";
 import { packages } from "@/data/demo";
 
 describe("catálogo demonstrativo", () => {
-  it("mantém cinco pacotes navegáveis com dados para os filtros", () => {
-    expect(packages).toHaveLength(5);
+  it("mantém os seis pacotes Voya navegáveis com dados para os filtros", () => {
+    expect(packages).toHaveLength(6);
     expect(new Set(packages.map((item) => item.slug)).size).toBe(packages.length);
 
     for (const item of packages) {

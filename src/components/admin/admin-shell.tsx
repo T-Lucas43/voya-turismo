@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   Archive,
   Bell,
-  ChevronDown,
   CircleHelp,
   Folder,
   Gauge,
@@ -19,6 +18,7 @@ import {
   Package,
   Search,
   Settings,
+  Shirt,
   UserCog,
   UsersRound,
 } from "lucide-react";
@@ -35,10 +35,11 @@ const navItems = [
   { label: "Pacotes", icon: Package, href: "/admin/pacotes", countKey: "packages" as const },
   { label: "Categorias", icon: Folder, href: "/admin/categorias" },
   { label: "Destinos", icon: MapPinned, href: "/admin/destinos" },
+  { label: "Roupas de frio", icon: Shirt, href: "/admin/roupas" },
   { label: "Leads", icon: UsersRound, href: "/admin/leads", countKey: "leads" as const },
   { label: "Depoimentos", icon: MessageSquareText, href: "/admin/depoimentos" },
   { label: "Perguntas frequentes", icon: CircleHelp, href: "/admin/perguntas" },
-  { label: "Galeria", icon: ImageIcon, href: "/admin/galeria" },
+  { label: "Galeria (futuro)", icon: ImageIcon, href: "/admin/galeria" },
   { label: "Arquivados", icon: Archive, href: "/admin/arquivados", divider: true },
   { label: "Usuários ADM", icon: UserCog, href: "/admin/usuarios" },
   { label: "Histórico", icon: History, href: "/admin/historico" },

@@ -1,6 +1,7 @@
 import { hash, verify } from "argon2";
 import { NextResponse, type NextRequest } from "next/server";
-import { createAdminSession, csrfCookieOptions, CSRF_COOKIE, sessionCookieOptions, SESSION_COOKIE } from "@/lib/auth/session";
+import { isLoginRateLimited, loginRateLimitWindowStart, LOGIN_RATE_LIMIT_WINDOW_MS } from "@/lib/auth/login-rate-limit";
+import { createAdminSession, csrfCookieOptions, CSRF_COOKIE, requestAuditContext, sessionCookieOptions, SESSION_COOKIE } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validation/auth";
 
@@ -11,26 +12,52 @@ export async function POST(request: NextRequest) {
     const parsed = loginSchema.safeParse(await request.json());
     if (!parsed.success) return NextResponse.json({ error: "Revise o e-mail e a senha informados." }, { status: 400 });
 
+    const auditContext = requestAuditContext(request);
+    const recentFailures = await prisma.auditLog.count({
+      where: {
+        action: "LOGIN_FAILED",
+        ipHash: auditContext.ipHash,
+        createdAt: { gte: loginRateLimitWindowStart() },
+      },
+    });
+    if (isLoginRateLimited(recentFailures)) {
+      return NextResponse.json(
+        { error: "Muitas tentativas de acesso. Aguarde alguns minutos e tente novamente." },
+        { status: 429, headers: { "Retry-After": String(LOGIN_RATE_LIMIT_WINDOW_MS / 1000) } },
+      );
+    }
+
     const user = await prisma.adminUser.findUnique({ where: { email: parsed.data.email } });
     if (!user) {
       await hash(parsed.data.password, { type: 2, memoryCost: 19456, timeCost: 2, parallelism: 1 });
+      await prisma.auditLog.create({
+        data: { action: "LOGIN_FAILED", entityType: "AdminUser", summary: "Tentativa de login administrativo recusada.", ...auditContext },
+      });
       return NextResponse.json({ error: genericError }, { status: 401 });
     }
 
     const now = new Date();
-    if (!user.active || user.deletedAt) return NextResponse.json({ error: genericError }, { status: 401 });
+    if (!user.active || user.deletedAt) {
+      await prisma.auditLog.create({
+        data: { adminUserId: user.id, action: "LOGIN_FAILED", entityType: "AdminUser", entityId: user.id, summary: "Tentativa de login em acesso administrativo inativo.", ...auditContext },
+      });
+      return NextResponse.json({ error: genericError }, { status: 401 });
+    }
     if (user.lockedUntil && user.lockedUntil > now) return NextResponse.json({ error: "Acesso temporariamente bloqueado. Aguarde alguns minutos." }, { status: 429 });
 
     const validPassword = await verify(user.passwordHash, parsed.data.password);
     if (!validPassword) {
       const failedLoginCount = user.failedLoginCount + 1;
-      await prisma.adminUser.update({ where: { id: user.id }, data: { failedLoginCount, lockedUntil: failedLoginCount >= 5 ? new Date(Date.now() + 15 * 60 * 1000) : null } });
+      await prisma.$transaction([
+        prisma.adminUser.update({ where: { id: user.id }, data: { failedLoginCount, lockedUntil: failedLoginCount >= 5 ? new Date(Date.now() + 15 * 60 * 1000) : null } }),
+        prisma.auditLog.create({ data: { adminUserId: user.id, action: "LOGIN_FAILED", entityType: "AdminUser", entityId: user.id, summary: "Tentativa de login administrativo recusada.", ...auditContext } }),
+      ]);
       return NextResponse.json({ error: genericError }, { status: 401 });
     }
 
     await prisma.adminUser.update({ where: { id: user.id }, data: { failedLoginCount: 0, lockedUntil: null, lastLoginAt: now } });
     const session = await createAdminSession(user.id, request);
-    await prisma.auditLog.create({ data: { adminUserId: user.id, action: "LOGIN", entityType: "AdminSession", summary: "Login administrativo realizado." } });
+    await prisma.auditLog.create({ data: { adminUserId: user.id, action: "LOGIN", entityType: "AdminSession", summary: "Login administrativo realizado.", ...auditContext } });
 
     const response = NextResponse.json({ ok: true, user: { name: user.name, role: user.role } });
     response.cookies.set(SESSION_COOKIE, session.token, { ...sessionCookieOptions, expires: session.expiresAt });

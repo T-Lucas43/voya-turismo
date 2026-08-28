@@ -21,7 +21,7 @@ export default async function AdminLoginPage({ searchParams }: PageProps<"/acess
     <main className="admin-login-page">
       <section className="admin-login-brand">
         <div><Logo /><span>Painel de gestão</span></div>
-        <div className="login-brand-copy"><span>Administração D’Hages</span><h1>Cuide de cada viagem em um só lugar.</h1><p>Pacotes, mídias, leads e conteúdo organizados com segurança.</p></div>
+        <div className="login-brand-copy"><span>Administração Voya</span><h1>Cuide de cada viagem em um só lugar.</h1><p>Pacotes, roupas, leads e conteúdo organizados com segurança.</p></div>
         <small>Somente usuários administrativos. Não existe acesso de cliente.</small>
       </section>
       <section className="admin-login-panel">

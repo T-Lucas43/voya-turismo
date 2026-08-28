@@ -304,7 +304,6 @@ export type DestinationOrderByWithRelationInput = {
 export type DestinationWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   slug?: string
-  city_stateCode?: Prisma.DestinationCityStateCodeCompoundUniqueInput
   AND?: Prisma.DestinationWhereInput | Prisma.DestinationWhereInput[]
   OR?: Prisma.DestinationWhereInput[]
   NOT?: Prisma.DestinationWhereInput | Prisma.DestinationWhereInput[]
@@ -320,7 +319,7 @@ export type DestinationWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Destination"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Destination"> | Date | string
   packages?: Prisma.PackageListRelationFilter
-}, "id" | "slug" | "city_stateCode">
+}, "id" | "slug">
 
 export type DestinationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -482,11 +481,6 @@ export type DestinationOrderByRelevanceInput = {
   fields: Prisma.DestinationOrderByRelevanceFieldEnum | Prisma.DestinationOrderByRelevanceFieldEnum[]
   sort: Prisma.SortOrder
   search: string
-}
-
-export type DestinationCityStateCodeCompoundUniqueInput = {
-  city: string
-  stateCode: string
 }
 
 export type DestinationCountOrderByAggregateInput = {

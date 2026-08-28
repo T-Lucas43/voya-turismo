@@ -6,7 +6,8 @@ import { getPublicDestinations } from "@/lib/public-data";
 
 export const metadata: Metadata = {
   title: "Destinos",
-  description: "Explore destinos no Pará, Maranhão e região Norte com os roteiros selecionados da D’Hages Turismo.",
+  description: "Explore destinos nacionais e internacionais com os roteiros selecionados da Voya Turismo.",
+  alternates: { canonical: "/destinos" },
 };
 
 export default async function DestinationsPage() {

@@ -3,19 +3,19 @@ import Link from "next/link";
 
 export function Logo({ compact = false }: { compact?: boolean }) {
   return (
-    <Link href="/" className="brand-logo" aria-label="D’Hages Turismo — início">
+    <Link href="/" className="brand-logo" aria-label="Voya Turismo — início">
       <span className={compact ? "brand-mark compact" : "brand-mark"}>
         <Image
-          src="/brand/logo.webp"
-          alt="Símbolo da D’Hages Turismo"
+          src="/brand/voya-mark-640.png"
+          alt="Símbolo da Voya Turismo"
           fill
           sizes={compact ? "44px" : "56px"}
           priority
         />
       </span>
       <span className="brand-copy">
-        <strong>D’Hages</strong>
-        <small>Turismo</small>
+        <strong>VOYA</strong>
+        <small>TURISMO</small>
       </span>
     </Link>
   );

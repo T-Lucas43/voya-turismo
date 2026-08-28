@@ -12,17 +12,24 @@ function requestIp(request: Request) {
   return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "local";
 }
 
+export function requestAuditContext(request: Request) {
+  return {
+    ipHash: hashSensitiveValue(requestIp(request)),
+    userAgent: request.headers.get("user-agent")?.slice(0, 500) ?? null,
+  };
+}
+
 export async function createAdminSession(userId: string, request: Request) {
   const token = createRandomToken();
   const csrfToken = createRandomToken(24);
   const expiresAt = new Date(Date.now() + SESSION_MAX_AGE_SECONDS * 1000);
+  const auditContext = requestAuditContext(request);
   await prisma.adminSession.create({
     data: {
       userId,
       tokenHash: hashToken(token),
       csrfTokenHash: hashToken(csrfToken),
-      ipHash: hashSensitiveValue(requestIp(request)),
-      userAgent: request.headers.get("user-agent")?.slice(0, 500),
+      ...auditContext,
       expiresAt,
     },
   });

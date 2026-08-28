@@ -10,23 +10,18 @@ import { Logo } from "./logo";
 const links = [
   ["Início", "/"],
   ["Pacotes", "/pacotes"],
-  ["Destinos", "/destinos"],
+  ["Serviços", "/#servicos"],
+  ["Aluguel de roupas", "/roupas"],
   ["Sobre nós", "/sobre"],
   ["Contato", "/contato"],
 ];
 
 export function Header({ company }: { company: PublicCompany }) {
   const [open, setOpen] = useState(false);
-  const whatsapp = whatsappUrl("Olá! Gostaria de conhecer os pacotes da D’Hages Turismo.", company.whatsapp);
+  const whatsapp = whatsappUrl("Olá! Gostaria de conhecer os pacotes da Voya Turismo.", company.whatsapp);
 
   return (
     <header className="site-header">
-      <div className="topline">
-        <div className="shell topline-inner">
-          <span>Viagens que viram histórias</span>
-          <span>{company.city} – {company.state} · Atendimento personalizado</span>
-        </div>
-      </div>
       <div className="shell header-inner">
         <Logo />
         <nav className="desktop-nav" aria-label="Navegação principal">

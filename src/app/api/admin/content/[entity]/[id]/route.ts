@@ -4,7 +4,7 @@ import { authenticateAdminRequest } from "@/lib/auth/session";
 import { prisma } from "@/lib/prisma";
 import { contentSchemas, type ContentEntity } from "@/lib/validation/content";
 
-const validEntities = new Set<ContentEntity>(["categorias", "destinos", "depoimentos", "perguntas", "galeria"]);
+const validEntities = new Set<ContentEntity>(["categorias", "destinos", "depoimentos", "perguntas", "galeria", "roupas"]);
 
 export async function PATCH(request: NextRequest, context: RouteContext<"/api/admin/content/[entity]/[id]">) {
   const session = await authenticateAdminRequest(request, true);
@@ -22,7 +22,8 @@ export async function PATCH(request: NextRequest, context: RouteContext<"/api/ad
     else if (entity === "perguntas") {
       const data = contentSchemas.perguntas.parse(parsed.data);
       record = await prisma.faq.update({ where: { id }, data: { ...data, packageId: data.scope === "PACKAGE" ? data.packageId : null } });
-    } else record = await prisma.galleryItem.update({ where: { id }, data: contentSchemas.galeria.parse(parsed.data) });
+    } else if (entity === "galeria") record = await prisma.galleryItem.update({ where: { id }, data: contentSchemas.galeria.parse(parsed.data) });
+    else record = await prisma.clothingItem.update({ where: { id }, data: contentSchemas.roupas.parse(parsed.data) });
     await writeAudit({ adminUserId: session.userId, action: "CONTENT_UPDATED", entityType: entity, entityId: id, summary: `Registro atualizado em ${entity}.`, afterState: record });
     return NextResponse.json({ record });
   } catch {
@@ -41,7 +42,8 @@ export async function DELETE(request: NextRequest, context: RouteContext<"/api/a
     else if (entity === "destinos") await prisma.destination.update({ where: { id }, data: { active: false, deletedAt: new Date() } });
     else if (entity === "depoimentos") await prisma.testimonial.delete({ where: { id } });
     else if (entity === "perguntas") await prisma.faq.delete({ where: { id } });
-    else await prisma.galleryItem.delete({ where: { id } });
+    else if (entity === "galeria") await prisma.galleryItem.delete({ where: { id } });
+    else await prisma.clothingItem.update({ where: { id }, data: { active: false, deletedAt: new Date() } });
     await writeAudit({ adminUserId: session.userId, action: "CONTENT_DELETED", entityType: entity, entityId: id, summary: `Registro removido de ${entity}.` });
     return NextResponse.json({ deleted: true });
   } catch {

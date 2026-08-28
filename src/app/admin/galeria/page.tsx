@@ -1,8 +1,11 @@
-import { CollectionManager, type CollectionRecord } from "@/components/admin/collection-manager";
-import { GalleryUpload } from "@/components/admin/gallery-upload";
-import { prisma } from "@/lib/prisma";
+import { Image as ImageIcon } from "lucide-react";
 
-export default async function GalleryAdminPage() {
-  const records = await prisma.galleryItem.findMany({ orderBy: [{ sortOrder: "asc" }, { createdAt: "desc" }] });
-  return <><div className="admin-content gallery-upload-wrapper"><GalleryUpload /></div><CollectionManager entity="galeria" title="Galeria" singular="Mídia" description="Organize imagens e vídeos de viagens realizadas." records={records.map((item) => ({ id: item.id, title: item.title, path: item.path, mediaType: item.mediaType, altText: item.altText, active: item.active, sortOrder: item.sortOrder })) as CollectionRecord[]} columns={[{ key: "title", label: "Título" }, { key: "mediaType", label: "Tipo", format: "mediaType" }, { key: "path", label: "Arquivo" }, { key: "active", label: "Status", format: "published" }]} fields={[{ key: "title", label: "Título" }, { key: "path", label: "Caminho do arquivo", required: true, placeholder: "/uploads/..." }, { key: "mediaType", label: "Tipo", type: "select", defaultValue: "IMAGE", options: [{ value: "IMAGE", label: "Imagem" }, { value: "VIDEO", label: "Vídeo" }] }, { key: "altText", label: "Texto alternativo", wide: true }, { key: "sortOrder", label: "Ordem", type: "number", defaultValue: 0 }, { key: "active", label: "Status", type: "checkbox", defaultValue: true }]} /></>;
+export default function GalleryAdminPage() {
+  return <div className="admin-content admin-list-page">
+    <div className="admin-welcome"><div><span>Planejamento futuro</span><h1>Galeria de imagens</h1><p>Esta área está reservada para uma implementação futura e não aparece no site público.</p></div></div>
+    <section className="admin-panel future-feature-card">
+      <span><ImageIcon /></span>
+      <div><h2>Implementação futura</h2><p>O cadastro, a organização e a publicação de galerias serão adicionados em uma próxima etapa do projeto.</p></div>
+    </section>
+  </div>;
 }

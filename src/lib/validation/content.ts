@@ -52,12 +52,28 @@ export const gallerySchema = z.object({
   sortOrder: z.coerce.number().int().min(0).max(10_000).default(0),
 });
 
+export const clothingSchema = z.object({
+  name: z.string().trim().min(2).max(160),
+  slug,
+  description: z.string().trim().max(10_000).nullable().optional(),
+  category: z.enum(["FEMININO", "MASCULINO", "INFANTIL", "ACESSORIO"]).default("MASCULINO"),
+  imagePath: z.string().trim().max(500).nullable().optional(),
+  sizes: z.string().trim().max(240).nullable().optional(),
+  color: z.string().trim().max(120).nullable().optional(),
+  dailyPrice: z.coerce.number().min(0).max(1_000_000).nullable().optional(),
+  quantity: z.coerce.number().int().min(0).max(100_000).default(0),
+  active: z.boolean().default(true),
+  featured: z.boolean().default(false),
+  sortOrder: z.coerce.number().int().min(0).max(10_000).default(0),
+});
+
 export const contentSchemas = {
   categorias: categorySchema,
   destinos: destinationSchema,
   depoimentos: testimonialSchema,
   perguntas: faqSchema,
   galeria: gallerySchema,
+  roupas: clothingSchema,
 } as const;
 
 export type ContentEntity = keyof typeof contentSchemas;

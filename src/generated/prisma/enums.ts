@@ -74,3 +74,13 @@ export const FaqScope = {
 } as const
 
 export type FaqScope = (typeof FaqScope)[keyof typeof FaqScope]
+
+
+export const ClothingCategory = {
+  FEMININO: 'FEMININO',
+  MASCULINO: 'MASCULINO',
+  INFANTIL: 'INFANTIL',
+  ACESSORIO: 'ACESSORIO'
+} as const
+
+export type ClothingCategory = (typeof ClothingCategory)[keyof typeof ClothingCategory]

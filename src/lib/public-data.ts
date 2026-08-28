@@ -1,4 +1,7 @@
 import { company, packages as demoPackages, type TravelPackage } from "@/data/demo";
+import { voyaClothingCatalog } from "@/data/voya-clothing-catalog";
+import { voyaPackageCatalog } from "@/data/voya-package-catalog";
+import { connection } from "next/server";
 import { isFrontendOnly } from "@/lib/env";
 import { publicPackageWhere } from "@/lib/packages/visibility";
 import { prisma } from "@/lib/prisma";
@@ -22,7 +25,7 @@ export type PublicCompany = {
 
 const demoCompany: PublicCompany = {
   name: company.name,
-  city: "Belém",
+  city: "Parauapebas",
   state: "Pará",
   phones: company.phones,
   whatsapp: company.whatsapp,
@@ -30,46 +33,91 @@ const demoCompany: PublicCompany = {
   address: company.address,
   hours: company.hours,
   mapEmbedUrl: null,
-  aboutTitle: "Turismo feito com cuidado e afeto",
-  aboutText: "Somos de Belém e criamos roteiros acolhedores, seguros e bem acompanhados.",
-  mission: "Aproximar pessoas de experiências marcantes por meio de viagens bem cuidadas.",
-  vision: "Ser referência em turismo acolhedor e responsável na região Norte.",
-  valuesText: "Transparência, segurança, respeito, atenção e paixão por servir.",
+  aboutTitle: "Experiências que ficam para sempre",
+  aboutText: "A Voya Turismo cria viagens nacionais e internacionais com ótimo custo-benefício, planejamento próximo e aluguel de roupas de frio.",
+  mission: "Transformar planos em viagens completas, seguras e memoráveis.",
+  vision: "Ser referência em atendimento personalizado e experiências de viagem em Parauapebas.",
+  valuesText: "Transparência, cuidado, segurança, proximidade e paixão por viajar.",
 };
 
 const dateFormatter = new Intl.DateTimeFormat("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 
+const reportedDatabaseFallbacks = new Set<string>();
+
+function reportDatabaseFallback(scope: string, error: unknown) {
+  if (process.env.NODE_ENV === "test" || reportedDatabaseFallbacks.has(scope)) return;
+  reportedDatabaseFallbacks.add(scope);
+  const reason = error instanceof Error ? error.message.split("\n")[0] : "banco indisponível";
+  console.warn(`[Voya] ${scope}: usando o catálogo local (${reason}).`);
+}
+
+async function withDatabaseFallback<T>(scope: string, query: () => Promise<T>, fallback: () => T | Promise<T>): Promise<T> {
+  try {
+    return await query();
+  } catch (error) {
+    reportDatabaseFallback(scope, error);
+    return await fallback();
+  }
+}
+
+function getDemoDestinations() {
+  return demoPackages
+    .map((item) => ({ id: item.slug, name: item.destination, slug: item.destinationSlug ?? item.destination, state: item.state, stateCode: item.stateCode ?? "BR", coverPath: item.image, packageCount: 1 }))
+    .filter((item, index, all) => all.findIndex((candidate) => candidate.name === item.name) === index);
+}
+
+function getDemoHomeContent() {
+  return {
+    categories: [{ name: "Nacionais", slug: "nacional", count: 5 }, { name: "Internacionais", slug: "internacional", count: 1 }],
+    testimonial: { name: "Mariana Souza", destination: "Carolina — MA", quote: "A equipe cuidou de tudo e fez a gente se sentir em casa. Foi a melhor escolha para conhecer a Chapada!", rating: 5 },
+    gallery: [],
+    faqs: [{ id: "reserva", question: "Como faço para reservar?", answer: "Fale com nossa equipe pelo WhatsApp. Confirmaremos disponibilidade e condições de pagamento." }],
+  };
+}
+
+function getDemoPackageDetail(slug: string): PublicPackageDetail | null {
+  const item = demoPackages.find((entry) => entry.slug === slug);
+  if (!item) return null;
+  const catalogItem = voyaPackageCatalog.find((entry) => entry.slug === slug);
+  return { ...item, id: item.slug, city: item.city ?? item.destination, stateCode: item.stateCode ?? "BR", departureIso: item.departureIso ?? new Date().toISOString(), returnIso: catalogItem?.returnIso ?? new Date().toISOString(), description: catalogItem?.description ?? item.summary, boardingTime: "06:00", boardingLocation: "Marabá — ponto informado pela equipe", installmentValue: catalogItem?.installmentValue ?? null, installmentTotal: item.price, totalSpots: null, remainingSpots: null, showSpots: false, accommodation: "Hospedagem em apartamento duplo, conforme o anúncio.", transport: "Passagens aéreas de ida e volta por Marabá.", meals: "Café da manhã incluso.", guide: "Equipe Voya Turismo", childPolicy: "Consulte a equipe.", requiredDocuments: "Documento oficial com foto.", paymentMethods: "Parcelamento em até 12 vezes.", importantNotes: "Valor por pessoa em apartamento duplo. Consulte disponibilidade.", mapUrl: null, includedItems: catalogItem?.included ?? ["Acompanhamento da equipe"], excludedItems: ["Despesas pessoais e itens não mencionados"], itinerary: [{ id: "dia-1", dayNumber: 1, time: null, title: "Embarque e chegada", details: "Embarque, recepção da equipe e início da experiência." }], media: [{ id: "capa", type: "IMAGE", path: item.image, thumbnailPath: item.image, posterPath: null, altText: `Foto do destino do pacote ${item.name}` }], faqs: [], seoTitle: item.name, seoDescription: item.summary, shareImagePath: item.image };
+}
+
 export async function getPublicCompany(): Promise<PublicCompany> {
   if (isFrontendOnly) return demoCompany;
-  const settings = await prisma.companySettings.findUnique({ where: { singletonKey: "default" } });
-  if (!settings) return demoCompany;
-  return {
-    name: settings.companyName,
-    city: settings.city,
-    state: settings.state,
-    phones: [settings.phonePrimary, settings.phoneSecondary].filter((value): value is string => Boolean(value)),
-    whatsapp: settings.whatsappNumber,
-    instagram: settings.instagramHandle ?? "",
-    address: settings.address,
-    hours: settings.businessHours ?? "",
-    mapEmbedUrl: settings.mapEmbedUrl,
-    aboutTitle: settings.aboutTitle ?? demoCompany.aboutTitle,
-    aboutText: settings.aboutText ?? demoCompany.aboutText,
-    mission: settings.mission ?? demoCompany.mission,
-    vision: settings.vision ?? demoCompany.vision,
-    valuesText: settings.valuesText ?? demoCompany.valuesText,
-  };
+  await connection();
+  return withDatabaseFallback("empresa", async () => {
+    const settings = await prisma.companySettings.findUnique({ where: { singletonKey: "default" } });
+    if (!settings) return demoCompany;
+    return {
+      name: settings.companyName,
+      city: settings.city,
+      state: settings.state,
+      phones: [settings.phonePrimary, settings.phoneSecondary].filter((value): value is string => Boolean(value)),
+      whatsapp: settings.whatsappNumber,
+      instagram: settings.instagramHandle ?? "",
+      address: settings.address,
+      hours: settings.businessHours ?? "",
+      mapEmbedUrl: settings.mapEmbedUrl,
+      aboutTitle: settings.aboutTitle ?? demoCompany.aboutTitle,
+      aboutText: settings.aboutText ?? demoCompany.aboutText,
+      mission: settings.mission ?? demoCompany.mission,
+      vision: settings.vision ?? demoCompany.vision,
+      valuesText: settings.valuesText ?? demoCompany.valuesText,
+    };
+  }, () => demoCompany);
 }
 
 export async function getPublicPackages(): Promise<TravelPackage[]> {
   if (isFrontendOnly) return demoPackages;
-  const settings = await getPublicCompany();
-  const records = await prisma.package.findMany({
-    where: publicPackageWhere(),
-    orderBy: [{ featured: "desc" }, { featuredOrder: "asc" }, { departureAt: "asc" }],
-    include: { category: { select: { name: true, slug: true } }, destination: { select: { name: true, slug: true } }, media: { orderBy: { sortOrder: "asc" } } },
-  });
-  return records.map((item) => {
+  await connection();
+  return withDatabaseFallback("pacotes", async () => {
+    const settings = await getPublicCompany();
+    const records = await prisma.package.findMany({
+      where: publicPackageWhere(),
+      orderBy: [{ featured: "desc" }, { featuredOrder: "asc" }, { departureAt: "asc" }],
+      include: { category: { select: { name: true, slug: true } }, destination: { select: { name: true, slug: true } }, media: { orderBy: { sortOrder: "asc" } } },
+    });
+    return records.map((item) => {
     const cover = item.media.find((media) => media.isCover && media.type === "IMAGE") ?? item.media.find((media) => media.type === "IMAGE");
     const preview = item.media.find((media) => media.isPreview && media.type === "VIDEO");
     return {
@@ -99,35 +147,100 @@ export async function getPublicPackages(): Promise<TravelPackage[]> {
       waitingListEnabled: item.waitingListEnabled,
       whatsappNumber: settings.whatsapp,
     };
-  });
+    });
+  }, () => demoPackages);
 }
 
 export async function getPublicDestinations() {
-  if (isFrontendOnly) return demoPackages.map((item) => ({ id: item.slug, name: item.destination, slug: item.destinationSlug ?? item.destination, state: item.state, stateCode: item.state === "Pará" ? "PA" : "MA", coverPath: item.image, packageCount: 1 })).filter((item, index, all) => all.findIndex((candidate) => candidate.name === item.name) === index);
-  const records = await prisma.destination.findMany({ where: { active: true, deletedAt: null }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }], include: { packages: { where: publicPackageWhere(), select: { id: true }, take: 100 } } });
-  return records.filter((item) => item.packages.length > 0).map((item) => ({ id: item.id, name: item.name, slug: item.slug, state: item.state, stateCode: item.stateCode, coverPath: item.coverPath ?? "/media/destinations/ajuruteua.webp", packageCount: item.packages.length }));
+  if (isFrontendOnly) return getDemoDestinations();
+  await connection();
+  return withDatabaseFallback("destinos", async () => {
+    const records = await prisma.destination.findMany({ where: { active: true, deletedAt: null }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }], include: { packages: { where: publicPackageWhere(), select: { id: true }, take: 100 } } });
+    return records.filter((item) => item.packages.length > 0).map((item) => ({ id: item.id, name: item.name, slug: item.slug, state: item.state, stateCode: item.stateCode, coverPath: item.coverPath ?? "/media/destinations/ajuruteua.webp", packageCount: item.packages.length }));
+  }, getDemoDestinations);
+}
+
+export type PublicClothingItem = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  category: "FEMININO" | "MASCULINO" | "INFANTIL" | "ACESSORIO";
+  categoryLabel: string;
+  imagePath: string | null;
+  sizes: string | null;
+  color: string | null;
+  dailyPrice: number | null;
+  quantity: number;
+  featured: boolean;
+};
+
+const clothingCategoryLabels: Record<PublicClothingItem["category"], string> = {
+  FEMININO: "Feminino",
+  MASCULINO: "Masculino",
+  INFANTIL: "Infantil",
+  ACESSORIO: "Acessórios",
+};
+
+function getDemoClothing(): PublicClothingItem[] {
+  return voyaClothingCatalog.map((item) => ({
+    id: `mock-${item.slug}`,
+    name: item.name,
+    slug: item.slug,
+    description: item.description,
+    category: item.category,
+    categoryLabel: clothingCategoryLabels[item.category],
+    imagePath: item.imagePath,
+    sizes: item.sizes,
+    color: item.color,
+    dailyPrice: item.dailyPrice,
+    quantity: item.quantity,
+    featured: item.featured,
+  }));
+}
+
+export async function getPublicClothing(): Promise<PublicClothingItem[]> {
+  if (isFrontendOnly) return getDemoClothing();
+  await connection();
+  return withDatabaseFallback("roupas", async () => {
+    const records = await prisma.clothingItem.findMany({
+      where: { active: true, deletedAt: null },
+      orderBy: [{ featured: "desc" }, { sortOrder: "asc" }, { name: "asc" }],
+    });
+    return records.map((item) => ({
+    id: item.id,
+    name: item.name,
+    slug: item.slug,
+    description: item.description,
+    category: item.category,
+    categoryLabel: clothingCategoryLabels[item.category],
+    imagePath: item.imagePath,
+    sizes: item.sizes,
+    color: item.color,
+    dailyPrice: item.dailyPrice == null ? null : Number(item.dailyPrice),
+    quantity: item.quantity,
+    featured: item.featured,
+    }));
+  }, getDemoClothing);
 }
 
 export async function getPublicHomeContent() {
-  if (isFrontendOnly) return {
-    categories: [{ name: "Praias & ilhas", slug: "praias-ilhas", count: 2 }, { name: "Natureza", slug: "natureza", count: 1 }, { name: "Aventura", slug: "aventura", count: 1 }, { name: "Bate e volta", slug: "bate-e-volta", count: 1 }],
-    testimonial: { name: "Mariana Souza", destination: "Carolina — MA", quote: "A equipe cuidou de tudo e fez a gente se sentir em casa. Foi a melhor escolha para conhecer a Chapada!", rating: 5 },
-    gallery: demoPackages.slice(0, 3).map((item) => ({ id: item.slug, title: item.destination, path: item.image, mediaType: "IMAGE" as const, altText: `Viagem para ${item.destination}` })),
-    faqs: [{ id: "reserva", question: "Como faço para reservar?", answer: "Fale com nossa equipe pelo WhatsApp. Confirmaremos disponibilidade e condições de pagamento." }],
-  };
-  const now = new Date();
-  const [categories, testimonial, gallery, faqs] = await Promise.all([
-    prisma.packageCategory.findMany({ where: { active: true, deletedAt: null }, orderBy: { sortOrder: "asc" }, include: { _count: { select: { packages: { where: publicPackageWhere(now) } } } } }),
-    prisma.testimonial.findFirst({ where: { active: true }, orderBy: [{ sortOrder: "asc" }, { publishedAt: "desc" }] }),
-    prisma.galleryItem.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" }, take: 6 }),
-    prisma.faq.findMany({ where: { active: true, scope: "GENERAL" }, orderBy: { sortOrder: "asc" }, take: 8 }),
-  ]);
-  return {
-    categories: categories.map((item) => ({ name: item.name, slug: item.slug, count: item._count.packages })),
-    testimonial: testimonial ? { name: testimonial.name, destination: testimonial.destination ?? "Viajante D’Hages", quote: testimonial.quote, rating: testimonial.rating } : null,
-    gallery: gallery.map(({ id, title, path, mediaType, altText }) => ({ id, title, path, mediaType, altText })),
-    faqs: faqs.map(({ id, question, answer }) => ({ id, question, answer })),
-  };
+  if (isFrontendOnly) return getDemoHomeContent();
+  await connection();
+  return withDatabaseFallback("conteúdo da página inicial", async () => {
+    const now = new Date();
+    const [categories, testimonial, faqs] = await Promise.all([
+      prisma.packageCategory.findMany({ where: { active: true, deletedAt: null }, orderBy: { sortOrder: "asc" }, include: { _count: { select: { packages: { where: publicPackageWhere(now) } } } } }),
+      prisma.testimonial.findFirst({ where: { active: true }, orderBy: [{ sortOrder: "asc" }, { publishedAt: "desc" }] }),
+      prisma.faq.findMany({ where: { active: true, scope: "GENERAL" }, orderBy: { sortOrder: "asc" }, take: 8 }),
+    ]);
+    return {
+      categories: categories.filter((item) => item._count.packages > 0).map((item) => ({ name: item.name, slug: item.slug, count: item._count.packages })),
+      testimonial: testimonial ? { name: testimonial.name, destination: testimonial.destination ?? "Viajante Voya", quote: testimonial.quote, rating: testimonial.rating } : null,
+      gallery: [],
+      faqs: faqs.map(({ id, question, answer }) => ({ id, question, answer })),
+    };
+  }, getDemoHomeContent);
 }
 
 export type PublicPackageDetail = TravelPackage & {
@@ -163,12 +276,10 @@ export type PublicPackageDetail = TravelPackage & {
 };
 
 export async function getPublicPackageBySlug(slug: string, countView = false): Promise<PublicPackageDetail | null> {
-  if (isFrontendOnly) {
-    const item = demoPackages.find((entry) => entry.slug === slug);
-    if (!item) return null;
-    return { ...item, id: item.slug, city: item.destination, stateCode: item.state === "Pará" ? "PA" : "MA", departureIso: new Date().toISOString(), returnIso: new Date().toISOString(), description: item.summary, boardingTime: "06:00", boardingLocation: "Belém", installmentValue: null, installmentTotal: null, totalSpots: null, remainingSpots: null, showSpots: false, accommodation: "Hospedagem conforme o roteiro.", transport: "Transporte executivo climatizado.", meals: "Conforme programação.", guide: "Equipe D’Hages Turismo", childPolicy: "Consulte a equipe.", requiredDocuments: "Documento oficial com foto.", paymentMethods: "Pix e cartão.", importantNotes: "Siga as orientações enviadas antes do embarque.", mapUrl: null, includedItems: ["Transporte ida e volta", "Acompanhamento da equipe", "Hospedagem conforme o roteiro"], excludedItems: ["Despesas pessoais", "Refeições não mencionadas"], itinerary: [{ id: "dia-1", dayNumber: 1, time: null, title: "Partida e boas-vindas", details: "Embarque, recepção da equipe e início das atividades." }], media: [{ id: "capa", type: "IMAGE", path: item.image, thumbnailPath: item.image, posterPath: null, altText: `Paisagem de ${item.destination}` }], faqs: [], seoTitle: item.name, seoDescription: item.summary, shareImagePath: item.image };
-  }
-  const record = await prisma.package.findFirst({
+  if (isFrontendOnly) return getDemoPackageDetail(slug);
+  await connection();
+  return withDatabaseFallback(`pacote ${slug}`, async () => {
+    const record = await prisma.package.findFirst({
     where: { slug, ...publicPackageWhere() },
     include: {
       category: { select: { name: true, slug: true } },
@@ -179,13 +290,13 @@ export async function getPublicPackageBySlug(slug: string, countView = false): P
       itinerary: { orderBy: { sortOrder: "asc" } },
       faqs: { where: { active: true }, orderBy: { sortOrder: "asc" } },
     },
-  });
-  if (!record) return null;
-  const settings = await getPublicCompany();
-  if (countView) await prisma.package.update({ where: { id: record.id }, data: { viewCount: { increment: 1 } } });
-  const cover = record.media.find((media) => media.isCover && media.type === "IMAGE") ?? record.media.find((media) => media.type === "IMAGE");
-  const preview = record.media.find((media) => media.isPreview && media.type === "VIDEO");
-  return {
+    });
+    if (!record) return null;
+    const settings = await getPublicCompany();
+    if (countView) await prisma.package.update({ where: { id: record.id }, data: { viewCount: { increment: 1 } } });
+    const cover = record.media.find((media) => media.isCover && media.type === "IMAGE") ?? record.media.find((media) => media.type === "IMAGE");
+    const preview = record.media.find((media) => media.isPreview && media.type === "VIDEO");
+    return {
     id: record.id,
     slug: record.slug,
     name: record.name,
@@ -237,5 +348,6 @@ export async function getPublicPackageBySlug(slug: string, countView = false): P
     seoTitle: record.seoTitle,
     seoDescription: record.seoDescription,
     shareImagePath: record.shareImagePath,
-  };
+    };
+  }, () => getDemoPackageDetail(slug));
 }

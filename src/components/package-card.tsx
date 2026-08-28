@@ -67,7 +67,7 @@ export function PackageCard({ item }: { item: TravelPackage }) {
           <span><Clock3 size={16} /> {item.duration}</span>
         </div>
         <div className="package-price-row">
-          <div><small>A partir de</small><strong>{formatCurrency(item.price)}</strong><span>{item.installments}</span></div>
+          <div><small>A partir de</small><strong>{item.installments}</strong><span>ou {formatCurrency(item.price)} no total</span></div>
         </div>
         <div className="card-actions">
           <Link className="button button-primary" href={`/pacotes/${item.slug}`}>Ver detalhes <ArrowUpRight size={17} /></Link>

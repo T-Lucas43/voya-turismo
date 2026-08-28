@@ -4,7 +4,7 @@ import { PackageCard } from "@/components/package-card";
 import { PublicShell } from "@/components/public-shell";
 import { getPublicPackages } from "@/lib/public-data";
 
-export const metadata = { title: "Pacotes de viagem", description: "Encontre pacotes de viagem saindo de Belém com atendimento personalizado." };
+export const metadata = { title: "Pacotes de viagem", description: "Encontre pacotes de viagem com atendimento personalizado da Voya Turismo.", alternates: { canonical: "/pacotes" } };
 
 function one(value: string | string[] | undefined) { return Array.isArray(value) ? value[0] ?? "" : value ?? ""; }
 
@@ -67,7 +67,7 @@ export default async function PackagesPage({ searchParams }: PageProps<"/pacotes
         <button className="button button-primary button-block" type="submit">Aplicar filtros</button>
       </form>
       <div className="catalog-results">
-        <div className="catalog-toolbar"><div><strong>{filtered.length} pacote{filtered.length === 1 ? "" : "s"} encontrado{filtered.length === 1 ? "" : "s"}</strong><span>Saindo de Belém e região</span></div><form className="sort-form"><input type="hidden" name="busca" value={one(params.busca)} /><input type="hidden" name="destino" value={destino} /><input type="hidden" name="categoria" value={categoria} /><label><span>Ordenar:</span><select name="ordem" defaultValue={ordem}><option value="recentes">Mais recentes</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option><option value="proxima">Data mais próxima</option></select></label><button type="submit">Aplicar</button></form><a className="mobile-filter-button" href="#catalog-filters"><SlidersHorizontal size={18} /> Filtros</a></div>
+        <div className="catalog-toolbar"><div><strong>{filtered.length} pacote{filtered.length === 1 ? "" : "s"} encontrado{filtered.length === 1 ? "" : "s"}</strong><span>Destinos nacionais e internacionais</span></div><form className="sort-form"><input type="hidden" name="busca" value={one(params.busca)} /><input type="hidden" name="destino" value={destino} /><input type="hidden" name="categoria" value={categoria} /><label><span>Ordenar:</span><select name="ordem" defaultValue={ordem}><option value="recentes">Mais recentes</option><option value="menor">Menor preço</option><option value="maior">Maior preço</option><option value="proxima">Data mais próxima</option></select></label><button type="submit">Aplicar</button></form><a className="mobile-filter-button" href="#catalog-filters"><SlidersHorizontal size={18} /> Filtros</a></div>
         {hasFilters && <div className="active-filter"><Link href="/pacotes">Limpar filtros <X size={14} /></Link></div>}
         {visible.length ? <div className="package-grid catalog-grid">{visible.map((item) => <PackageCard key={item.slug} item={item} />)}</div> : <div className="public-empty"><Search /><strong>Nenhum pacote combina com esses filtros</strong><p>Limpe os filtros ou fale com a equipe para montar uma opção.</p><Link className="button button-primary" href="/pacotes">Limpar filtros</Link></div>}
         {totalPages > 1 && <nav className="pagination" aria-label="Paginação">{Array.from({ length: totalPages }, (_, index) => index + 1).map((number) => <Link className={number === page ? "active" : ""} key={number} href={{ pathname: "/pacotes", query: { ...params, pagina: number } }}>{number}</Link>)}</nav>}

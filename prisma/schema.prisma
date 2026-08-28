@@ -53,6 +53,13 @@ enum FaqScope {
   PACKAGE
 }
 
+enum ClothingCategory {
+  FEMININO
+  MASCULINO
+  INFANTIL
+  ACESSORIO
+}
+
 model AdminUser {
   id                String               @id @default(cuid())
   name              String               @db.VarChar(120)
@@ -333,6 +340,29 @@ model GalleryItem {
   @@index([active, sortOrder])
 }
 
+model ClothingItem {
+  id          String           @id @default(cuid())
+  name        String           @db.VarChar(160)
+  slug        String           @unique @db.VarChar(191)
+  description String?          @db.Text
+  category    ClothingCategory @default(MASCULINO)
+  imagePath   String?          @db.VarChar(500)
+  sizes       String?          @db.VarChar(240)
+  color       String?          @db.VarChar(120)
+  dailyPrice  Decimal?         @db.Decimal(10, 2)
+  quantity    Int              @default(0)
+  active      Boolean          @default(true)
+  featured    Boolean          @default(false)
+  sortOrder   Int              @default(0)
+  deletedAt   DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@index([active, category, sortOrder])
+  @@index([featured, sortOrder])
+  @@index([deletedAt])
+}
+
 model CompanySettings {
   id                    String   @id @default(cuid())
   singletonKey          String   @unique @default("default") @db.VarChar(30)
@@ -377,4 +407,5 @@ model AuditLog {
   @@index([adminUserId, createdAt])
   @@index([entityType, entityId, createdAt])
   @@index([action, createdAt])
+  @@index([action, ipHash, createdAt])
 }

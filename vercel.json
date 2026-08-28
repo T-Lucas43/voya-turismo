@@ -3,5 +3,8 @@
   "framework": "nextjs",
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
+  "env": {
+    "FRONTEND_ONLY": "1"
+  },
   "regions": ["gru1"]
 }

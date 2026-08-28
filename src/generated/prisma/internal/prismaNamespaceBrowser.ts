@@ -65,6 +65,7 @@ export const ModelName = {
   Testimonial: 'Testimonial',
   Faq: 'Faq',
   GalleryItem: 'GalleryItem',
+  ClothingItem: 'ClothingItem',
   CompanySettings: 'CompanySettings',
   AuditLog: 'AuditLog'
 } as const
@@ -342,6 +343,28 @@ export const GalleryItemScalarFieldEnum = {
 export type GalleryItemScalarFieldEnum = (typeof GalleryItemScalarFieldEnum)[keyof typeof GalleryItemScalarFieldEnum]
 
 
+export const ClothingItemScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  category: 'category',
+  imagePath: 'imagePath',
+  sizes: 'sizes',
+  color: 'color',
+  dailyPrice: 'dailyPrice',
+  quantity: 'quantity',
+  active: 'active',
+  featured: 'featured',
+  sortOrder: 'sortOrder',
+  deletedAt: 'deletedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClothingItemScalarFieldEnum = (typeof ClothingItemScalarFieldEnum)[keyof typeof ClothingItemScalarFieldEnum]
+
+
 export const CompanySettingsScalarFieldEnum = {
   id: 'id',
   singletonKey: 'singletonKey',
@@ -584,6 +607,19 @@ export const GalleryItemOrderByRelevanceFieldEnum = {
 } as const
 
 export type GalleryItemOrderByRelevanceFieldEnum = (typeof GalleryItemOrderByRelevanceFieldEnum)[keyof typeof GalleryItemOrderByRelevanceFieldEnum]
+
+
+export const ClothingItemOrderByRelevanceFieldEnum = {
+  id: 'id',
+  name: 'name',
+  slug: 'slug',
+  description: 'description',
+  imagePath: 'imagePath',
+  sizes: 'sizes',
+  color: 'color'
+} as const
+
+export type ClothingItemOrderByRelevanceFieldEnum = (typeof ClothingItemOrderByRelevanceFieldEnum)[keyof typeof ClothingItemOrderByRelevanceFieldEnum]
 
 
 export const CompanySettingsOrderByRelevanceFieldEnum = {

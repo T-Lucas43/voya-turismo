@@ -402,6 +402,23 @@ export type EnumFaqScopeWithAggregatesFilter<$PrismaModel = never> = {
   _max?: Prisma.NestedEnumFaqScopeFilter<$PrismaModel>
 }
 
+export type EnumClothingCategoryFilter<$PrismaModel = never> = {
+  equals?: $Enums.ClothingCategory | Prisma.EnumClothingCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.ClothingCategory[]
+  notIn?: $Enums.ClothingCategory[]
+  not?: Prisma.NestedEnumClothingCategoryFilter<$PrismaModel> | $Enums.ClothingCategory
+}
+
+export type EnumClothingCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ClothingCategory | Prisma.EnumClothingCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.ClothingCategory[]
+  notIn?: $Enums.ClothingCategory[]
+  not?: Prisma.NestedEnumClothingCategoryWithAggregatesFilter<$PrismaModel> | $Enums.ClothingCategory
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumClothingCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumClothingCategoryFilter<$PrismaModel>
+}
+
 export type JsonNullableFilter<$PrismaModel = never> =
 | Prisma.PatchUndefined<
     Prisma.Either<Required<JsonNullableFilterBase<$PrismaModel>>, Exclude<keyof Required<JsonNullableFilterBase<$PrismaModel>>, 'path'>>,
@@ -856,6 +873,23 @@ export type NestedEnumFaqScopeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>
   _min?: Prisma.NestedEnumFaqScopeFilter<$PrismaModel>
   _max?: Prisma.NestedEnumFaqScopeFilter<$PrismaModel>
+}
+
+export type NestedEnumClothingCategoryFilter<$PrismaModel = never> = {
+  equals?: $Enums.ClothingCategory | Prisma.EnumClothingCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.ClothingCategory[]
+  notIn?: $Enums.ClothingCategory[]
+  not?: Prisma.NestedEnumClothingCategoryFilter<$PrismaModel> | $Enums.ClothingCategory
+}
+
+export type NestedEnumClothingCategoryWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ClothingCategory | Prisma.EnumClothingCategoryFieldRefInput<$PrismaModel>
+  in?: $Enums.ClothingCategory[]
+  notIn?: $Enums.ClothingCategory[]
+  not?: Prisma.NestedEnumClothingCategoryWithAggregatesFilter<$PrismaModel> | $Enums.ClothingCategory
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumClothingCategoryFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumClothingCategoryFilter<$PrismaModel>
 }
 
 export type NestedJsonNullableFilter<$PrismaModel = never> =

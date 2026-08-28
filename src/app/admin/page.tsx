@@ -95,7 +95,7 @@ export default async function AdminPage() {
         <div>
           <span className="admin-date">{dateFormatter.format(now)}</span>
           <h1>Visão geral</h1>
-          <p>Acompanhe os registros e o desempenho da D’Hages Turismo.</p>
+          <p>Acompanhe os registros e o desempenho da Voya Turismo.</p>
         </div>
         <Link href="/admin/pacotes/novo" className="button button-primary"><Plus size={18} /> Novo pacote</Link>
       </div>

@@ -1,10 +1,16 @@
-# D’Hages Turismo
+<p align="center"><img src=".github/assets/banner.svg" alt="Voya Turismo" width="100%" /></p>
 
-Plataforma completa para divulgação e gestão de pacotes turísticos da D’Hages Turismo. O projeto reúne site público responsivo, catálogo pesquisável, páginas de detalhes, captação de leads e um painel administrativo protegido.
+<p align="center"><a href="https://github.com/T-Lucas43">Perfil</a> · <a href="https://github.com/T-Lucas43?tab=repositories">Mais projetos</a> · <a href="https://www.linkedin.com/in/tarcisio-lucas-io">LinkedIn</a></p>
+
+---
+
+# Voya Turismo
+
+Plataforma completa para divulgação e gestão de pacotes turísticos da Voya Turismo. O projeto reúne site público responsivo, catálogo pesquisável, páginas de detalhes, captação de leads e um painel administrativo protegido.
 
 ## Principais recursos
 
-- Site público com vídeo Full HD no hero, animações com Motion e identidade azul/dourada da marca.
+- Site público com vídeo Full HD no hero, animações com Motion e identidade visual da marca.
 - Catálogo com busca e filtros por destino, data, categoria e preço.
 - Detalhes do pacote com galeria, roteiro, inclusos, condições, disponibilidade e WhatsApp.
 - Painel ADM exclusivo com dashboard, pacotes, categorias, destinos, depoimentos, perguntas, galeria, leads, usuários, configurações, histórico e arquivados.
